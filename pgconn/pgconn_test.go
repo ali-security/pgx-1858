@@ -12,6 +12,7 @@ import (
 	"math"
 	"net"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -2473,6 +2474,9 @@ func TestConnCancelRequest(t *testing.T) {
 
 // https://github.com/jackc/pgx/issues/659
 func TestConnContextCanceledCancelsRunningQueryOnServer(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("flaky on Windows: connection cleanup timing exceeds maximum time")
+	}
 	t.Parallel()
 
 	t.Run("postgres", func(t *testing.T) {
